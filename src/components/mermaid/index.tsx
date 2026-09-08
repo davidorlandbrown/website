@@ -7,7 +7,7 @@ interface MermaidProps {
   className?: string;
 }
 
-export default function Mermaid({ chart, id, className = "" }: MermaidProps) {
+export function MermaidChart({ chart, id, className = "" }: MermaidProps) {
   const elementRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -192,3 +192,5 @@ export default function Mermaid({ chart, id, className = "" }: MermaidProps) {
     </div>
   );
 }
+
+export default MermaidChart;
