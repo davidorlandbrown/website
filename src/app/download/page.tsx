@@ -30,35 +30,40 @@ export const metadata: Metadata = {
 
 /** Fetches and parses the appcast to determine the latest released Ghostty version. */
 async function fetchLatestGhosttyVersion(): Promise<string> {
-  const response = await fetch(
-    "https://release.files.ghostty.org/appcast.xml",
-    {
-      cache: "force-cache",
-    },
-  );
-  if (!response.ok) {
-    throw new Error(`Failed to fetch XML: ${response.statusText}`);
+  try {
+    const response = await fetch(
+      "https://release.files.ghostty.org/appcast.xml",
+      {
+        cache: "force-cache",
+      },
+    );
+    if (!response.ok) {
+      throw new Error(`Failed to fetch XML: ${response.statusText}`);
+    }
+
+    const xmlContent = await response.text();
+    const parser = new XMLParser({
+      ignoreAttributes: false,
+    });
+    const parsedXml = parser.parse(xmlContent) as Appcast;
+
+    const items = parsedXml.rss?.channel?.item;
+    if (!items) {
+      throw new Error("Failed to parse appcast XML: no items found");
+    }
+
+    const itemsArray = Array.isArray(items) ? items : [items];
+    const latestItem = itemsArray.reduce((maxItem, currentItem) => {
+      const currentVersion = Number.parseInt(currentItem["sparkle:version"], 10);
+      const maxVersion = Number.parseInt(maxItem["sparkle:version"], 10);
+      return currentVersion > maxVersion ? currentItem : maxItem;
+    });
+
+    return latestItem["sparkle:shortVersionString"];
+  } catch (error) {
+    console.warn("Failed to fetch latest version from appcast:", error);
+    return "unknown";
   }
-
-  const xmlContent = await response.text();
-  const parser = new XMLParser({
-    ignoreAttributes: false,
-  });
-  const parsedXml = parser.parse(xmlContent) as Appcast;
-
-  const items = parsedXml.rss?.channel?.item;
-  if (!items) {
-    throw new Error("Failed to parse appcast XML: no items found");
-  }
-
-  const itemsArray = Array.isArray(items) ? items : [items];
-  const latestItem = itemsArray.reduce((maxItem, currentItem) => {
-    const currentVersion = Number.parseInt(currentItem["sparkle:version"], 10);
-    const maxVersion = Number.parseInt(maxItem["sparkle:version"], 10);
-    return currentVersion > maxVersion ? currentItem : maxItem;
-  });
-
-  return latestItem["sparkle:shortVersionString"];
 }
 
 /** Renders the download page for either stable releases or the tip build. */
