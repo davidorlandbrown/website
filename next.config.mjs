@@ -1,5 +1,6 @@
 import createMDX from "@next/mdx";
 import { createRequire } from "node:module";
+import withBundleAnalyzer from "@next/bundle-analyzer";
 
 // require resolves plugin module paths for the MDX loader in ESM config files.
 const require = createRequire(import.meta.url);
@@ -127,4 +128,7 @@ const nextConfig = {
   },
 };
 
-export default withMDX(nextConfig);
+const config = withMDX(nextConfig);
+export default withBundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+})(config);
