@@ -1,5 +1,6 @@
 import Footer from "@/components/footer";
 import PathnameFilter from "@/components/pathname-filter";
+import WebVitalsTracker from "@/components/web-vitals-tracker";
 import type { SimpleLink } from "@/components/link";
 import Navbar from "@/components/navbar";
 import PreviewBanner from "@/components/preview-banner";
@@ -113,6 +114,7 @@ export default function AppLayout({
         )}
       >
         <PreviewBanner />
+        <WebVitalsTracker />
         <Suspense fallback={<div style={{ height: "60px" }} />}>
           <NavbarWrapper />
         </Suspense>
