@@ -9,6 +9,7 @@ import { loadDocsNavTreeData } from "@/lib/docs/navigation";
 import "@/styles/globals.css";
 import classNames from "classnames";
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import s from "./layout.module.css";
 
 // Navigation links for our nav bars. This currently applies to both
@@ -63,16 +64,45 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function AppLayout({
+async function NavbarWrapper() {
+  const docsNavTree = await loadDocsNavTreeData(DOCS_DIRECTORY, "");
+  return (
+    <PathnameFilter paths={NO_CHROME_PATHS} mode="exclude">
+      <Navbar
+        links={navLinks}
+        docsNavTree={docsNavTree}
+        cta={{
+          href: "/download",
+          text: "Download",
+        }}
+      />
+    </PathnameFilter>
+  );
+}
+
+async function FooterWrapper() {
+  const currentYear = new Date().getFullYear();
+  return (
+    <PathnameFilter paths={NO_CHROME_PATHS} mode="exclude">
+      <Footer
+        links={[
+          ...navLinks,
+          {
+            text: "Download",
+            href: "/download",
+          },
+        ]}
+        copyright={`© ${currentYear} Ghostty`}
+      />
+    </PathnameFilter>
+  );
+}
+
+export default function AppLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // Load the docs tree once at the root so navbar/mobile docs navigation
-  // can be rendered across the site.
-  const docsNavTree = await loadDocsNavTreeData(DOCS_DIRECTORY, "");
-  const currentYear = new Date().getFullYear();
-
   return (
     <html lang="en">
       <body
@@ -83,29 +113,13 @@ export default async function AppLayout({
         )}
       >
         <PreviewBanner />
-        <PathnameFilter paths={NO_CHROME_PATHS} mode="exclude">
-          <Navbar
-            links={navLinks}
-            docsNavTree={docsNavTree}
-            cta={{
-              href: "/download",
-              text: "Download",
-            }}
-          />
-        </PathnameFilter>
+        <Suspense fallback={<div style={{ height: "60px" }} />}>
+          <NavbarWrapper />
+        </Suspense>
         {children}
-        <PathnameFilter paths={NO_CHROME_PATHS} mode="exclude">
-          <Footer
-            links={[
-              ...navLinks,
-              {
-                text: "Download",
-                href: "/download",
-              },
-            ]}
-            copyright={`© ${currentYear} Ghostty`}
-          />
-        </PathnameFilter>
+        <Suspense fallback={<div style={{ height: "100px" }} />}>
+          <FooterWrapper />
+        </Suspense>
       </body>
     </html>
   );
