@@ -1,6 +1,6 @@
 "use client";
 
-import AnimatedTerminal from "@/components/animated-terminal";
+import AnimatedTerminal from "@/components/animated-terminal/lazy";
 import GridContainer from "@/components/grid-container";
 import { ButtonLink } from "@/components/link";
 import { P } from "@/components/text";

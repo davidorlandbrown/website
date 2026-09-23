@@ -43,9 +43,18 @@ const nextConfig = {
     // The homepage animation and docs reference pages intentionally ship
     // larger static payloads than Next.js defaults for page-data warnings.
     largePageDataBytes: 2 * 1024 * 1024,
+    // Enable streaming for faster First Contentful Paint
+    streamingRouteChunks: true,
   },
   env: {
     GIT_COMMIT_REF: process.env.VERCEL_GIT_COMMIT_REF || "",
+  },
+
+  images: {
+    formats: ["image/avif", "image/webp"],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    minimumCacheTTL: 60 * 60 * 24 * 365, // 1 year
   },
 
   async headers() {
